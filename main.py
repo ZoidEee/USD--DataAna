@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.graph_objs as go
+import statistics
 
 maticData = pd.read_excel('Matic.xlsx')
 optimismData = pd.read_excel('Optimism.xlsx')
@@ -14,6 +15,7 @@ def estimate(amount):
     bPay = [s.split('$')[1] for s in binanceData['Amount']]
     for line in mPay:
         mAmount = mAmount * float(line) + mAmount
+        mAl.append(amount)
 
     for line in oPay:
         oAmount = oAmount * float(line) + oAmount
@@ -21,48 +23,54 @@ def estimate(amount):
     for line in bPay:
         bAmount = bAmount * float(line) + bAmount
 
-    return print(f'Matic (USD+): ${mAmount}\nOptimism (USD+): ${oAmount}\nBinance (USD+): ${bAmount}')
+    return
 
 
-def apyPlot(average):
+def apyPlot():
     mDates = list(maticData['Date'])
     mAPYdata = [line[:-1] for line in list(maticData['APY'])]
-    mPay = [s.split('$')[1] for s in maticData['Amount']]
-    data = []
+    fig = go.Figure([go.Scatter(x=mDates, y=mAPYdata)])
+    fig.update_layout(autotypenumbers='convert types')
+    fig.show()
 
-    if average:
-        avg = 0.0
-        total = 0
-        for line in mAPYdata:
-            avg = avg + float(line)
-            total += 1
-        print(total)
+def avgApyPlot():
+    mDates = list(maticData['Date'])
+    mAPYdata = [line[:-1] for line in list(maticData['APY'])]
 
-        avg = avg / total
-        a = 0
+    data = get_avg(mAPYdata)
 
-        while a != total:
-            a += 1
-            data.append(avg)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')))
+    fig.add_trace(go.Scatter(x=mDates, y=data, name="Average APY", mode="lines",
+                             line=dict(shape='linear', color='#000000', width=2, dash='dash'), connectgaps=True))
+    fig.update_layout(
+        title="Matic USD+ Daily APY + AVG APY", xaxis_title="Date", yaxis_title="APY",
+        autotypenumbers='convert types'
+    )
+    fig.show()
 
-        '''fig = go.Figure([go.Scatter(x=mDates, y=mAPYdata)])
-        fig.update_layout(autotypenumbers='convert types')
-        fig.show()'''
+def get_avg(apyL):
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')))
-        fig.add_trace(go.Scatter(x=mDates, y=data, name="Average APY", mode="lines",
-                                 line=dict(shape='linear', color='#000000', width=2, dash='dash'), connectgaps=True))
-        fig.update_layout(
-            title="Matic USD+ Daily APY + AVG APY", xaxis_title="Date", yaxis_title="APY",
-            autotypenumbers='convert types'
-        )
-        fig.show()
+    total_added = 0.0
+    ct = 0.0
+    for line in apyL:
+        total_added = total_added + float(line)
+        ct += 1.0
 
-    else:
-        fig = go.Figure([go.Scatter(x=mDates, y=mAPYdata)])
-        fig.update_layout(autotypenumbers='convert types')
-        fig.show()
+    print(total_added)
+    avg = total_added / ct
+    print(avg)
+
+    apy_list = []
+    count = 0.0
+    while count != ct:
+        count += 1
+        apy_list.append(avg)
+
+    return apy_list
 
 
-apyPlot(True)
+
+'''definitions'''
+apyPlot()
+avgApyPlot()

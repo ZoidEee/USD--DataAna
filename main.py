@@ -15,15 +15,28 @@ def estimate(amount, network):
     mPay = [s.split('$')[1] for s in maticData['Amount']]
     oPay = [s.split('$')[1] for s in optimismData['Amount']]
     bPay = [s.split('$')[1] for s in binanceData['Amount']]
+    mL = []
 
     if network == option[0]:
-        mL = []
+        for line in mPay:
+            oAmount = oAmount * float(line) + oAmount
+            mL.append(oAmount)
+        return mL
+    elif network == option[1]:
         for line in mPay:
             mAmount = mAmount * float(line) + mAmount
-            print(mAmount)
             mL.append(mAmount)
-
         return mL
+    elif network == option[2]:
+        for line in mPay:
+            bAmount = bAmount * float(line) + bAmount
+            mL.append(bAmount)
+        return mL
+    elif network != any(option):
+        print(f'Error in network:{option}, Please try again ')
+        return
+
+
     for line in oPay:
         oAmount = oAmount * float(line) + oAmount
 

@@ -6,17 +6,27 @@ maticData = pd.read_excel('Matic.xlsx')
 optimismData = pd.read_excel('Optimism.xlsx')
 binanceData = pd.read_excel('Binance.xlsx')
 avalancheData = pd.read_excel('Avalanche.xlsx')
+mPay = [s.split('$')[1] for s in maticData['Amount']]
+oPay = [s.split('$')[1] for s in optimismData['Amount']]
+bPay = [s.split('$')[1] for s in binanceData['Amount']]
+aPay = [s.split('$')[1] for s in avalancheData['Amount']]
+oDates = list(optimismData['Date'])
+mDates = list(maticData['Date'])
+bDates = list(binanceData['Date'])
+aDates = list(avalancheData['Date'])
+oAPYdata = [line[:-1] for line in list(optimismData['APY'])]
+mAPYdata = [line[:-1] for line in list(maticData['APY'])]
+bAPYdata = [line[:-1] for line in list(binanceData['APY'])]
+aAPYdata = [line[:-1] for line in list(avalancheData['APY'])]
 
 option = ['O', 'M', 'B', 'A']
-
+times = ['D', 'B', 'M']
+# div_payment = []
 
 def estimate(amount, network):
     mAmount, bAmount, oAmount, aAmount = amount, amount, amount, amount
 
-    mPay = [s.split('$')[1] for s in maticData['Amount']]
-    oPay = [s.split('$')[1] for s in optimismData['Amount']]
-    bPay = [s.split('$')[1] for s in binanceData['Amount']]
-    aPay = [s.split('$')[1] for s in avalancheData['Amount']]
+
 
     mL = []
 
@@ -45,8 +55,6 @@ def estimate(amount, network):
     elif network != any(option):
         print(f'Error in network:{option}, Please try again ')
         return
-
-
 
 
 def get_avg(apyL):
@@ -173,21 +181,17 @@ def avgApyPlot(network):
 
 
 def avgProfitPlot(deposit, network):
-
-
     deposit = float(deposit)
 
     if network == option[0]:
-        mDates = list(optimismData['Date'])
-        mAPYdata = [line[:-1] for line in list(optimismData['APY'])]
 
         data = estimate(deposit, option[0])
         dRange = [deposit - 100, data[-1] + 100]
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+        fig.add_trace(go.Scatter(x=oDates, y=oAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
                       secondary_y=False)
-        fig.add_trace(go.Scatter(x=mDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
+        fig.add_trace(go.Scatter(x=oDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
         fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
                          title='Deposit Estimation')
 
@@ -197,8 +201,6 @@ def avgProfitPlot(deposit, network):
         )
         fig.show()
     elif network == option[1]:
-        mDates = list(maticData['Date'])
-        mAPYdata = [line[:-1] for line in list(maticData['APY'])]
 
         data = estimate(deposit, option[1])
         dRange = [deposit - 100, data[-1] + 100]
@@ -216,16 +218,14 @@ def avgProfitPlot(deposit, network):
         )
         fig.show()
     elif network == option[2]:
-        mDates = list(binanceData['Date'])
-        mAPYdata = [line[:-1] for line in list(binanceData['APY'])]
 
         data = estimate(deposit, option[2])
         dRange = [deposit - 100, data[-1] + 100]
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+        fig.add_trace(go.Scatter(x=bDates, y=bAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
                       secondary_y=False)
-        fig.add_trace(go.Scatter(x=mDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
+        fig.add_trace(go.Scatter(x=bDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
         fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
                          title='Deposit Estimation')
 
@@ -235,16 +235,14 @@ def avgProfitPlot(deposit, network):
         )
         fig.show()
     elif network == option[3]:
-        mDates = list(avalancheData['Date'])
-        mAPYdata = [line[:-1] for line in list(avalancheData['APY'])]
 
         data = estimate(deposit, option[3])
         dRange = [deposit - 100, data[-1] + 100]
 
         fig = make_subplots(specs=[[{"secondary_y": True}]])
-        fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+        fig.add_trace(go.Scatter(x=aDates, y=aAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
                       secondary_y=False)
-        fig.add_trace(go.Scatter(x=mDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
+        fig.add_trace(go.Scatter(x=aDates, y=data, name="Deposit", mode="lines"), secondary_y=True)
         fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
                          title='Deposit Estimation')
 
@@ -257,4 +255,196 @@ def avgProfitPlot(deposit, network):
         print(f'Error in {network}: please try again')
         return
 
-avgProfitPlot(10000,'A')
+
+def profitWdeposit(initial, network, time_frame, amount):
+    bw = 15
+    m = 30
+    c = 1
+
+    profit = []
+
+    if network == option[0]:
+
+        for line in oPay:
+
+            if time_frame == times[0]:
+                # div_payment.append(initial * float(line))
+                initial = initial * float(line) + initial + amount
+                profit.append(initial)
+            elif time_frame == times[1]:
+                if c != bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+            elif time_frame == times[2]:
+                if c != m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+
+        dRange = [profit[0] - 100, profit[-1] + 100]
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(go.Scatter(x=oDates, y=oAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+                      secondary_y=False)
+        fig.add_trace(go.Scatter(x=oDates, y=profit, name="Deposit", mode="lines"), secondary_y=True)
+        fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
+                         title='Deposit Estimation')
+
+        fig.update_layout(
+            title="USD+ Profit Estimation", xaxis_title="Date", yaxis_title="APY",
+            autotypenumbers='convert types'
+        )
+        fig.show()
+    elif network == option[1]:
+        for line in mPay:
+
+            if time_frame == times[0]:
+                # div_payment.append(initial * float(line))
+                initial = initial * float(line) + initial + amount
+                profit.append(initial)
+            elif time_frame == times[1]:
+                if c != bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+            elif time_frame == times[2]:
+                if c != m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+
+        dRange = [profit[0] - 100, profit[-1] + 100]
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(go.Scatter(x=mDates, y=mAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+                      secondary_y=False)
+        fig.add_trace(go.Scatter(x=mDates, y=profit, name="Deposit", mode="lines"), secondary_y=True)
+        fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
+                         title='Deposit Estimation')
+
+        fig.update_layout(
+            title="USD+ Profit Estimation", xaxis_title="Date", yaxis_title="APY",
+            autotypenumbers='convert types'
+        )
+        fig.show()
+    elif network == option[2]:
+
+
+        for line in bPay:
+
+            if time_frame == times[0]:
+                # div_payment.append(initial * float(line))
+                initial = initial * float(line) + initial + amount
+                profit.append(initial)
+            elif time_frame == times[1]:
+                if c != bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+            elif time_frame == times[2]:
+                if c != m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+
+        dRange = [profit[0] - 100, profit[-1] + 100]
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(go.Scatter(x=bDates, y=bAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+                      secondary_y=False)
+        fig.add_trace(go.Scatter(x=bDates, y=profit, name="Deposit", mode="lines"), secondary_y=True)
+        fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
+                         title='Deposit Estimation')
+
+        fig.update_layout(
+            title="USD+ Profit Estimation", xaxis_title="Date", yaxis_title="APY",
+            autotypenumbers='convert types'
+        )
+        fig.show()
+    elif network == option[3]:
+
+
+        for line in aPay:
+
+            if time_frame == times[0]:
+                # div_payment.append(initial * float(line))
+                initial = initial * float(line) + initial + amount
+                profit.append(initial)
+            elif time_frame == times[1]:
+                if c != bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == bw:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+            elif time_frame == times[2]:
+                if c != m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial
+                    profit.append(initial)
+                    c += 1
+                elif c == m:
+                    # div_payment.append(initial * float(line))
+                    initial = initial * float(line) + initial + amount
+                    profit.append(initial)
+                    c = 1
+
+        dRange = [profit[0] - 100, profit[-1] + 100]
+
+        fig = make_subplots(specs=[[{"secondary_y": True}]])
+        fig.add_trace(go.Scatter(x=aDates, y=aAPYdata, name="Daily APY", mode="lines", line=dict(color='#1c95e7')),
+                      secondary_y=False)
+        fig.add_trace(go.Scatter(x=aDates, y=profit, name="Deposit", mode="lines"), secondary_y=True)
+        fig.update_yaxes(showgrid=False, secondary_y=True, range=dRange, scaleanchor='y2',
+                         title='Deposit Estimation')
+
+        fig.update_layout(
+            title="USD+ Profit Estimation", xaxis_title="Date", yaxis_title="APY",
+            autotypenumbers='convert types'
+        )
+        fig.show()
+
+
+
+profitWdeposit(1000, 'M', 'M', 50)

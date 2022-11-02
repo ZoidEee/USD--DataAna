@@ -21,12 +21,12 @@ aAPYdata = [line[:-1] for line in list(avalancheData['APY'])]
 
 option = ['O', 'M', 'B', 'A']
 times = ['D', 'B', 'M']
+
+
 # div_payment = []
 
 def estimate(amount, network):
     mAmount, bAmount, oAmount, aAmount = amount, amount, amount, amount
-
-
 
     mL = []
 
@@ -354,7 +354,6 @@ def profitWdeposit(initial, network, time_frame, amount):
         fig.show()
     elif network == option[2]:
 
-
         for line in bPay:
 
             if time_frame == times[0]:
@@ -400,7 +399,6 @@ def profitWdeposit(initial, network, time_frame, amount):
         fig.show()
     elif network == option[3]:
 
-
         for line in aPay:
 
             if time_frame == times[0]:
@@ -444,7 +442,6 @@ def profitWdeposit(initial, network, time_frame, amount):
             autotypenumbers='convert types'
         )
         fig.show()
-
 
 
 profitWdeposit(1000, 'M', 'M', 50)

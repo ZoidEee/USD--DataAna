@@ -26,30 +26,36 @@ times = ['D', 'B', 'M']
 # div_payment = []
 
 def estimate(amount, network):
-    mAmount, bAmount, oAmount, aAmount = amount, amount, amount, amount
+    holdings = amount
 
     mL = []
 
     if network == option[0]:
         for line in oPay:
-            oAmount = oAmount * float(line) + oAmount
-            mL.append(oAmount)
+            holdings = holdings * float(line) + holdings
+            print(line)
+            mL.append(holdings)
         return mL
     elif network == option[1]:
         for line in mPay:
-            mAmount = mAmount * float(line) + mAmount
-            mL.append(mAmount)
+            print(line)
+
+            holdings = holdings * float(line) + holdings
+            mL.append(holdings)
         return mL
     elif network == option[2]:
         for line in bPay:
-            bAmount = bAmount * float(line) + bAmount
-            mL.append(bAmount)
+            print(line)
+
+            holdings = holdings * float(line) + holdings
+            mL.append(holdings)
         return mL
     elif network == option[3]:
         for line in aPay:
-            aAmount = aAmount * float(line) + aAmount
-            print(aAmount)
-            mL.append(aAmount)
+            print(line)
+            holdings = holdings * float(line) + holdings
+            print()
+            mL.append(holdings)
         return mL
 
     elif network != any(option):
@@ -442,6 +448,7 @@ def profitWdeposit(initial, network, time_frame, amount):
             autotypenumbers='convert types'
         )
         fig.show()
+
 
 
 profitWdeposit(1000, 'M', 'M', 50)
